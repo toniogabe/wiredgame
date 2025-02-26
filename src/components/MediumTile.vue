@@ -30,6 +30,10 @@ const smallTiles: [number, number, boolean][] = [
 function has(direction: Direction): boolean {
   return tiles.value.includes(direction);
 }
+
+defineExpose({
+  id,
+});
 </script>
 
 <template>
