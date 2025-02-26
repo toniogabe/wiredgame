@@ -4,8 +4,8 @@ import MediumTile from '@/components/MediumTile.vue';
 import { useTiles } from '@/composables/useTiles';
 import { ref, type VNodeRef } from 'vue';
 
-const gridCols = ref(5);
-const gridRows = ref(5);
+const gridCols = ref(10);
+const gridRows = ref(4);
 
 const { possibleTiles } = useTiles();
 
@@ -23,12 +23,11 @@ function setTileRef(el: HTMLElement, x: number, y: number): VNodeRef {
   return tilesRefs;
 }
 
-function getTileRef(x: number, y: number): HTMLElement {
-  return tilesRefs.value.get(`${x}${y}`);
-}
+const getTileRef = (x: number, y: number): HTMLElement => tilesRefs.value.get(`${x}${y}`);
 
-function logme(x: number, y: number) {
+function handleClick(x: number, y: number) {
   const tile = getTileRef(x, y);
+  tile.rotate();
   console.log(tile.id);
 }
 </script>
@@ -44,7 +43,7 @@ function logme(x: number, y: number) {
               :x="x"
               :y="y"
               :tiles="getRandomTileCombination()"
-              @click="logme(x, y)"
+              @click="handleClick(x, y)"
             />
           </template>
           <template v-else>
