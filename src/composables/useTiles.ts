@@ -1,7 +1,9 @@
 import { ref } from 'vue';
 
+export type Direction = 'top' | 'right' | 'bottom' | 'left';
+
 export function useTiles() {
-  const possibleTiles = ref([
+  const possibleTiles = ref<Direction[][]>([
     // Single directions
     ['top'],
     ['right'],

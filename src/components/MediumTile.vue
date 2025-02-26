@@ -1,31 +1,33 @@
 <script setup lang="ts">
+import SmallTile from '@/components/SmallTile.vue';
 import { useTilePosition } from '@/composables/useTilePosition';
+import type { Direction } from '@/composables/useTiles';
 import { computed } from 'vue';
-import SmallTile from './SmallTile.vue';
 
-const props = defineProps({
-  x: {
-    type: Number,
-    required: true,
-  },
-
-  y: {
-    type: Number,
-    required: true,
-  },
-
-  tiles: {
-    type: Array,
-    required: true,
-  },
-});
+const props = defineProps<{
+  x: number;
+  y: number;
+  tiles: Direction[];
+}>();
 
 const { posX, posY, position } = useTilePosition(props.x, props.y);
 
-const tiles = computed(() => props.tiles);
 const id = computed(() => `${posX.value}${posY.value}`);
+const tiles = computed(() => props.tiles);
 
-function has(direction: string): boolean {
+const smallTiles: [number, number, boolean][] = [
+  [1, 1, false], // TopLeft
+  [2, 1, has('top')], // Top
+  [3, 1, false], // TopRight
+  [1, 2, has('left')], // Left
+  [2, 2, true], // Center
+  [3, 2, has('right')], // Right
+  [1, 3, false], // BottomLeft
+  [2, 3, has('bottom')], // Bottom
+  [3, 3, false], // BottomRight
+];
+
+function has(direction: Direction): boolean {
   return tiles.value.includes(direction);
 }
 </script>
@@ -38,30 +40,13 @@ function has(direction: string): boolean {
     ]"
   >
     <!-- TopLeft -->
-    <SmallTile :x="1" :y="1" :parentId="id" :isActive="false" />
-
-    <!-- Top Tile -->
-    <SmallTile :x="2" :y="1" :parentId="id" :isActive="has('top')" />
-
-    <!-- TopRight -->
-    <SmallTile :x="3" :y="1" :parentId="id" :isActive="false" />
-
-    <!-- Left Tile -->
-    <SmallTile :x="1" :y="2" :parentId="id" :isActive="has('left')" />
-
-    <!-- Center Tile -->
-    <SmallTile :x="2" :y="2" :parentId="id" :isActive="true" />
-
-    <!-- Right Tile -->
-    <SmallTile :x="3" :y="2" :parentId="id" :isActive="has('right')" />
-
-    <!-- BottomLeft -->
-    <SmallTile :x="1" :y="3" :parentId="id" :isActive="false" />
-
-    <!-- Bottom Tile -->
-    <SmallTile :x="2" :y="3" :parentId="id" :isActive="has('bottom')" />
-
-    <!-- BottomRight -->
-    <SmallTile :x="3" :y="3" :parentId="id" :isActive="false" />
+    <SmallTile
+      v-for="[x, y, isActive] in smallTiles"
+      :key="`${x}${y}`"
+      :x="x"
+      :y="y"
+      :parentId="id"
+      :isActive="isActive"
+    />
   </div>
 </template>

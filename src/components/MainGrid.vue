@@ -17,7 +17,11 @@ defineProps({
 <template>
   <div
     id="basegrid"
-    :class="['grid gap-0.5 p-0.5 m-auto', `grid-cols-${columns}`, `grid-rows-${rows}`]"
+    class="grid gap-0.5 p-0.5 m-auto"
+    :style="{
+      'grid-template-columns': `repeat(${columns}, minmax(0, 1fr))`,
+      'grid-template-rows': `repeat(${rows}, minmax(0, 1fr))`,
+    }"
   >
     <slot></slot>
   </div>
