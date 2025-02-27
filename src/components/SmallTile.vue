@@ -24,7 +24,7 @@ const props = defineProps({
   },
 });
 
-const { posX, posY, position } = useTilePosition(props.x, props.y);
+const { posX, posY } = useTilePosition(props.x, props.y);
 const showCoordinates = ref(false);
 
 const color = computed(() => (props.isActive ? 'bg-amber-100' : 'bg-blue-400'));

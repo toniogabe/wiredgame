@@ -1,19 +1,67 @@
 <script setup lang="ts">
 import MainGrid from '@/components/MainGrid.vue';
 import MediumTile from '@/components/MediumTile.vue';
+import { useTileConnection } from '@/composables/useTileConnection';
 import type { Direction } from '@/composables/useTiles';
 import { useTiles } from '@/composables/useTiles';
 import type { MediumTileElement } from '@/types/MediumTile';
-import { ref, type VNodeRef } from 'vue';
+import { onMounted, ref, type VNodeRef } from 'vue';
 
 const gridCols = ref(10);
 const gridRows = ref(4);
 
 const { possibleTiles } = useTiles();
+const { isConnected } = useTileConnection();
 
 const tilesRefs = ref(new Map());
+const startTile = ref<MediumTileElement | null>(null);
+
+onMounted(() => {
+  tilesRefs.value = new Map();
+
+  setTimeout(() => {
+    startTile.value = activeRandomTile();
+    activateConnectedTiles(startTile.value);
+  }, 2000);
+});
+
+function activateConnectedTiles(tile: MediumTileElement, visitedTiles = new Set<string>()) {
+  if (!tile || visitedTiles.has(tile.id)) {
+    return;
+  }
+
+  visitedTiles.add(tile.id);
+
+  const directions: Direction[] = ['top', 'right', 'bottom', 'left'];
+
+  directions.forEach((direction) => {
+    const neighbor = getTileFromDirection(tile, direction);
+
+    if (neighbor && isConnected(tile, neighbor, direction)) {
+      tile.activate();
+      neighbor.activate();
+      activateConnectedTiles(neighbor, visitedTiles);
+    }
+  });
+}
 
 const hasTile = (): boolean => true;
+
+function activeRandomTile(): MediumTileElement {
+  const randomX = Math.floor(Math.random() * gridCols.value);
+  const randomY = Math.floor(Math.random() * gridRows.value);
+
+  const randomTile = getTileRef(randomX, randomY);
+
+  if (randomTile) {
+    randomTile.activate();
+    console.log(randomTile);
+  }
+
+  console.log(randomTile);
+
+  return randomTile;
+}
 
 function getRandomTileCombination() {
   const randomIndex = Math.floor(Math.random() * possibleTiles.value.length);
@@ -31,19 +79,37 @@ function handleClick(x: number, y: number) {
   const tile = getTileRef(x, y);
   tile.rotate();
 
-  getNeighborsOf(tile);
+  tilesRefs.value.forEach((tile) => tile.deactivate());
+  // tile.deactivate();
+
+  activateConnectedTiles(startTile.value);
 }
 
-function getNeighborsOf(tile: MediumTileElement) {
+function getNeighborsOf(tile: MediumTileElement): MediumTileElement[] {
   const directions: Direction[] = ['top', 'right', 'bottom', 'left'];
-
   const neighbors: MediumTileElement[] = [];
 
   directions.forEach((direction) => {
     const neighbor = getTileFromDirection(tile, direction);
+
     if (neighbor) {
-      neighbor.activate();
       neighbors.push(neighbor);
+    }
+  });
+
+  return neighbors;
+}
+
+function checkNeighborsOf(tile: MediumTileElement) {
+  const directions: Direction[] = ['top', 'right', 'bottom', 'left'];
+  const neighbors: MediumTileElement[] = [];
+
+  directions.forEach((direction) => {
+    const neighbor = getTileFromDirection(tile, direction);
+
+    if (neighbor) {
+      neighbors.push(neighbor);
+      checkConnection(tile, neighbor, direction);
     }
   });
 
@@ -62,6 +128,20 @@ function getTileFromDirection(tile: MediumTileElement, direction: Direction) {
       return getTileRef(tile.position.x - 1, tile.position.y);
     default:
       return null;
+  }
+}
+
+function checkConnection(
+  tile: MediumTileElement,
+  tileToCheck: MediumTileElement,
+  direction: Direction,
+) {
+  if (isConnected(tile, tileToCheck, direction)) {
+    tile.activate();
+    tileToCheck.activate();
+  } else {
+    // tile.deactivate();
+    // tileToCheck.deactivate();
   }
 }
 </script>
