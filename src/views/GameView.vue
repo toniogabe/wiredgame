@@ -25,7 +25,7 @@ onMounted(() => {
   }, 2000);
 });
 
-function activateConnectedTiles(tile: MediumTileElement, visitedTiles = new Set<string>()) {
+function activateConnectedTiles(tile: MediumTileElement | null, visitedTiles = new Set<string>()) {
   if (!tile || visitedTiles.has(tile.id)) {
     return;
   }
