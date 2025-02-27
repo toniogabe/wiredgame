@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import MainGrid from '@/components/MainGrid.vue';
 import MediumTile from '@/components/MediumTile.vue';
+import type { Direction } from '@/composables/useTiles';
 import { useTiles } from '@/composables/useTiles';
 import type { MediumTileElement } from '@/types/MediumTile';
-import type { Direction } from 'readline';
 import { ref, type VNodeRef } from 'vue';
 
 const gridCols = ref(10);
@@ -73,7 +73,7 @@ function getTileFromDirection(tile: MediumTileElement, direction: Direction) {
         <template v-for="x in gridCols" :key="x">
           <template v-if="hasTile()">
             <MediumTile
-              :ref="(el: HTMLElement): VNodeRef => setTileRef(el, x, y)"
+              :ref="(el: MediumTileElement): VNodeRef => setTileRef(el, x, y)"
               :x="x"
               :y="y"
               :tiles="getRandomTileCombination()"
