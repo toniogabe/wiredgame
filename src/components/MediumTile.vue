@@ -15,6 +15,7 @@ const { posX, posY, position } = useTilePosition(props.x, props.y);
 const id = computed(() => `${posX.value}${posY.value}`);
 const tiles = ref<Direction[]>(props.tiles);
 const rotationAngle = ref(0);
+const activateClass = ref('');
 
 const smallTiles = computed<[number, number, boolean][]>(() => [
   [1, 1, false], // TopLeft
@@ -38,7 +39,10 @@ function rotate() {
 
   tiles.value = tiles.value.map((tile) => rotationMap[tile] || tile);
   // rotationAngle.value += 90; // Incrementa o ângulo de rotação em 90 graus
-  console.log(tiles.value);
+}
+
+function activate() {
+  activateClass.value = 'invert';
 }
 
 function has(direction: Direction): boolean {
@@ -47,7 +51,9 @@ function has(direction: Direction): boolean {
 
 defineExpose({
   id,
+  position,
   rotate,
+  activate,
 });
 </script>
 
@@ -56,6 +62,7 @@ defineExpose({
     :id="id"
     :class="[
       'grid grid-cols-3 grid-rows-3 w-fit h-fit relative cursor-pointer hover:ring-2 ring-amber-400 transition-all ease-in-out duration-300',
+      activateClass,
     ]"
     :style="{ transform: `rotate(${rotationAngle}deg)` }"
   >

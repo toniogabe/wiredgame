@@ -2,6 +2,8 @@
 import MainGrid from '@/components/MainGrid.vue';
 import MediumTile from '@/components/MediumTile.vue';
 import { useTiles } from '@/composables/useTiles';
+import type { MediumTileElement } from '@/types/MediumTile';
+import type { Direction } from 'readline';
 import { ref, type VNodeRef } from 'vue';
 
 const gridCols = ref(10);
@@ -18,17 +20,49 @@ function getRandomTileCombination() {
   return possibleTiles.value[randomIndex];
 }
 
-function setTileRef(el: HTMLElement, x: number, y: number): VNodeRef {
+function setTileRef(el: MediumTileElement, x: number, y: number): VNodeRef {
   tilesRefs.value.set(`${x}${y}`, el);
   return tilesRefs;
 }
 
-const getTileRef = (x: number, y: number): HTMLElement => tilesRefs.value.get(`${x}${y}`);
+const getTileRef = (x: number, y: number): MediumTileElement => tilesRefs.value.get(`${x}${y}`);
 
 function handleClick(x: number, y: number) {
   const tile = getTileRef(x, y);
   tile.rotate();
-  console.log(tile.id);
+
+  getNeighborsOf(tile);
+}
+
+function getNeighborsOf(tile: MediumTileElement) {
+  const directions: Direction[] = ['top', 'right', 'bottom', 'left'];
+
+  const neighbors: MediumTileElement[] = [];
+
+  directions.forEach((direction) => {
+    const neighbor = getTileFromDirection(tile, direction);
+    if (neighbor) {
+      neighbor.activate();
+      neighbors.push(neighbor);
+    }
+  });
+
+  return neighbors;
+}
+
+function getTileFromDirection(tile: MediumTileElement, direction: Direction) {
+  switch (direction) {
+    case 'top':
+      return getTileRef(tile.position.x, tile.position.y - 1);
+    case 'right':
+      return getTileRef(tile.position.x + 1, tile.position.y);
+    case 'bottom':
+      return getTileRef(tile.position.x, tile.position.y + 1);
+    case 'left':
+      return getTileRef(tile.position.x - 1, tile.position.y);
+    default:
+      return null;
+  }
 }
 </script>
 
